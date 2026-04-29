@@ -65,7 +65,7 @@ export default function StatsSection() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-20%" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.9 }}
           className="mb-16 max-w-4xl"
         >

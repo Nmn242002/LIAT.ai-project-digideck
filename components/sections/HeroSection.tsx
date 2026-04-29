@@ -10,7 +10,7 @@ export default function HeroSection() {
       <VideoBackground
         posterSrc="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2400&q=85"
         alt="Downtown Dubai skyline at night"
-        embedSrc="public/videos/hero.mp4"
+        embedSrc="/videos/hero.mp4"
         priority
       />
       <Container className="relative z-20 flex min-h-svh items-center justify-center pb-16 pt-36 text-center sm:pb-20">
