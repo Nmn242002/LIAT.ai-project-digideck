@@ -38,22 +38,30 @@ const stats = [
 function Counter({
   value,
   suffix,
-  inView
+  trigger
 }: {
   value: number;
   suffix: string;
-  inView: boolean;
+  trigger: boolean;
 }) {
   const motionValue = useMotionValue(0);
-  const spring = useSpring(motionValue, { duration: 1800, bounce: 0 });
+  const spring = useSpring(motionValue, {
+    stiffness: 100,
+    damping: 30
+  });
+
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    if (inView) motionValue.set(value);
-  }, [inView, motionValue, value]);
+    if (trigger) {
+      motionValue.set(value);
+    }
+  }, [trigger, value, motionValue]);
 
   useEffect(() => {
-    return spring.on("change", (latest) => setDisplay(Math.round(latest)));
+    return spring.on("change", (latest) => {
+      setDisplay(Math.round(latest));
+    });
   }, [spring]);
 
   return (
@@ -65,13 +73,20 @@ function Counter({
 }
 
 export default function StatsSection() {
+  // ✅ ONE observer for entire section
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionInView = useInView(sectionRef, { once: true });
+
   return (
-    <section id="stats" className="section-shell flex items-center bg-[#080808] py-24">
+    <section
+      ref={sectionRef}
+      id="stats"
+      className="section-shell flex items-center bg-[#080808] py-24"
+    >
       <Container>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          animate={sectionInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.9 }}
           className="mb-16 max-w-4xl"
         >
@@ -84,54 +99,44 @@ export default function StatsSection() {
         </motion.div>
 
         <div className="grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 shadow-glow md:grid-cols-3">
-          {stats.map((stat, index) => {
-            const ref = useRef<HTMLParagraphElement>(null);
-            const inView = useInView(ref, { once: true });
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 36 }}
+              animate={sectionInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.75, delay: index * 0.08 }}
+              className="group relative min-h-[380px] overflow-hidden bg-black p-8 sm:p-10"
+            >
+              <Image
+                src={stat.image}
+                alt={stat.alt}
+                fill
+                sizes="(min-width: 768px) 33vw, 100vw"
+                className="object-cover opacity-62 transition duration-700 group-hover:scale-105 group-hover:opacity-78"
+              />
 
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 36 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.75, delay: index * 0.08 }}
-                className="group relative min-h-[380px] overflow-hidden bg-black p-8 sm:p-10"
-              >
-                <Image
-                  src={stat.image}
-                  alt={stat.alt}
-                  fill
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-cover opacity-62 transition duration-700 group-hover:scale-105 group-hover:opacity-78"
-                />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/58 to-black/20" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(215,180,106,0.2),transparent_36%)]" />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/58 to-black/20" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(215,180,106,0.2),transparent_36%)]" />
+              <div className="relative z-10 flex h-full min-h-[320px] flex-col justify-end">
+                <p className="text-6xl font-semibold leading-none text-white drop-shadow-2xl sm:text-7xl lg:text-8xl">
+                  <Counter
+                    value={stat.value}
+                    suffix={stat.suffix}
+                    trigger={sectionInView}
+                  />
+                </p>
 
-                <div className="relative z-10 flex h-full min-h-[320px] flex-col justify-end">
-                  {/* ✅ FIX: observer moved to this element */}
-                  <p
-                    ref={ref}
-                    className="text-6xl font-semibold leading-none text-white drop-shadow-2xl sm:text-7xl lg:text-8xl"
-                  >
-                    <Counter
-                      value={stat.value}
-                      suffix={stat.suffix}
-                      inView={inView}
-                    />
-                  </p>
+                <h3 className="mt-8 text-2xl font-medium text-white">
+                  {stat.label}
+                </h3>
 
-                  <h3 className="mt-8 text-2xl font-medium text-white">
-                    {stat.label}
-                  </h3>
-
-                  <p className="mt-3 max-w-xs text-sm leading-6 text-white/72">
-                    {stat.detail}
-                  </p>
-                </div>
-              </motion.div>
-            );
-          })}
+                <p className="mt-3 max-w-xs text-sm leading-6 text-white/72">
+                  {stat.detail}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
         <div className="mt-10 grid gap-3 text-xs uppercase tracking-[0.24em] text-white/38 md:grid-cols-3">
