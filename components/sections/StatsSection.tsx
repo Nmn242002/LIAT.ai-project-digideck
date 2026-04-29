@@ -37,7 +37,7 @@ const stats = [
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-25%" });
+  const inView = useInView(ref, { once: true });
   const motionValue = useMotionValue(0);
   const spring = useSpring(motionValue, { duration: 1800, bounce: 0 });
   const [display, setDisplay] = useState(0);
