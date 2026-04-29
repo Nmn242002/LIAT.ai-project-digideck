@@ -82,7 +82,7 @@ export default function StatsSection() {
               key={stat.label}
               initial={{ opacity: 0, y: 36 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-15%" }}
+              viewport={{ once: true }}
               transition={{ duration: 0.75, delay: index * 0.08 }}
               className="group relative min-h-[380px] overflow-hidden bg-black p-8 sm:p-10"
             >
