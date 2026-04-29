@@ -37,21 +37,19 @@ const stats = [
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+
+  // ✅ FIX: trigger earlier in viewport
+  const inView = useInView(ref, {
+    once: true,
+    margin: "0px 0px -30% 0px"
+  });
+
   const motionValue = useMotionValue(0);
   const spring = useSpring(motionValue, { duration: 1800, bounce: 0 });
   const [display, setDisplay] = useState(0);
 
-  // ✅ FIX APPLIED HERE (only change)
   useEffect(() => {
-    if (inView) {
-      motionValue.set(value);
-    } else {
-      const id = requestAnimationFrame(() => {
-        motionValue.set(value);
-      });
-      return () => cancelAnimationFrame(id);
-    }
+    if (inView) motionValue.set(value);
   }, [inView, motionValue, value]);
 
   useEffect(() => {
